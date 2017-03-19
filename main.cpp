@@ -7,11 +7,11 @@
 #include <fstream>
 #include "Notice.h"
 
-#define RANDOMMELODY TRUE //Случайная генерация мелодии при оповещении
+#define RANDOMMELODY TRUE //Generation of random melody by notification
 
 /*
-Реализовать:
-Функцию, создающую конфиг файл, если оного нет, с объяснениями, как им пользоваться make_config();
+To implement:
+Creation of config file with explaionation how to use one
 */
 
 using namespace std;
@@ -34,7 +34,7 @@ int main() {
     HWND handlerToWindow = GetConsoleHwnd();
     char establishedTime[6];
     char lastEstablishedTime[6];
-    int muteSounds = 0; //Добавить свистелки и перделки
+    int muteSounds = 0;
     boolean timeWasShown = TRUE;
     boolean flash = FALSE;
     time_t timeT = time(NULL);
@@ -55,8 +55,8 @@ int main() {
     readConfig(&top);
     
     /*
-    Реализовать:
-    Русификация (желательно)
+    To implement:
+    Rusification
 
     short int i,datasize=13,cop;
     char **firstdata=new char*[datasize];
@@ -84,17 +84,14 @@ int main() {
     */
     
     do {
-        //const time_t timeT=time(NULL);
-        //ctime(&timeT);
-
-        //Ожидание момента, когда последнее текущее время будет отличаться от времени последнего вызова оповещений
+        //Waiting for a moment, when last established time will differ from time of last notify call
         while (!strcmp(establishedTime, lastEstablishedTime)) {
             /*
-            Проверка на нажатия кнопок
-            R - Перезагрузка файла конфига readConfig(&top);
-            O - Открытие конфига system("notice_config.txt");
-            M - Отключение звуков
-            Esc - выход из программы (безопасное удаление данных из кучи)
+            Checking for pressure of keys
+            R - Reload of config file readConfig(&top);
+            O - Open config file system("notice_config.txt");
+            M - Mute sounds
+            Esc - Escape from program (safe deletion of data from heap)
             */
             if (kbhit())
                 switch (getch()) {
@@ -105,14 +102,6 @@ int main() {
                     {
                         tabulation(establishedTime, &timeWasShown);
                         cout << "Reloading config" << endl;
-                        /*
-                        //How it worked before
-                        if (timeWasShown == FALSE) {
-                            cout << establishedTime << ' ' << "Reloading config" << endl;
-                            timeWasShown = TRUE;
-                        }
-                        else cout << "     " << ' ' << "Reloading config" << endl;
-                        */
                         readConfig(&top);
                         break;
                     }
@@ -144,7 +133,7 @@ int main() {
                     case 156: //Ь
                     {
                         if (muteSounds == 0) {
-                            muteSounds = 360; // Через сколько включить звук обратно (360 минут = 6 часов)
+                            muteSounds = 360; // After which time sound must be turned on again (360 min = 6 hours)
                             tabulation(establishedTime, &timeWasShown);
                             cout << "Sounds: OFF" << '\n' << endl;
                             log("Sound was turned off");
@@ -171,7 +160,7 @@ int main() {
             timeT = time(&timeT);
             strftime(establishedTime, 6, "%H:%M", localtime(&timeT));
         }
-        //Сохранение текущего времени как времени последнего вызова оповещений
+        //Saving of current time as time of last notify call
         strcpy(lastEstablishedTime, establishedTime);
         timeWasShown = 0;
 
@@ -185,7 +174,7 @@ int main() {
         }
         while (current);
 
-        if (timeWasShown) //Если было выведено хоть одно оповещение
+        if (timeWasShown) //If at least one notify was shown
         {
             if (muteSounds == 0) {
                 if (RANDOMMELODY == TRUE) {
@@ -273,12 +262,12 @@ int readConfig(Notice **top) {
         int j = 0;
         isWait = TRUE;
 
-        //Считывание задержки между оповещения или времени
+        //Reading time parameter of notify (time or time period)
         do {
             buffer[j] = (char)fgetc(file);
             if (buffer[j] == ':') {
                 //if(isWait == FALSE)break;
-                isWait = FALSE; //Глупая проверка, является ли считанное числом минут или временем в формате HH:MM
+                isWait = FALSE; //Dumb check, if readed value is number of minutes or time in HH:MM format
             }
             j++;
         }while (!feof(file) && buffer[j - 1] != ' ' && buffer[j - 1] != '\n' && j < 10);
@@ -300,20 +289,18 @@ int readConfig(Notice **top) {
         else current->setTime(buffer);
 
         j = 0;
-        do  //Считывание текста оповещения
+        do  //Reading notify message
         {
             buffer[j] = (char)fgetc(file);
             j++;
         }
         while (!feof(file) && buffer[j - 1] != '\n' && j < 255);
         buffer[j - 1] = '\0';
-        //cout << buffer << '#' << strlen(buffer) << endl;
-        //if (strlen(buffer) == 0){delete current;continue;}
         current->setTitle(buffer);
 
         /*
-        Реализовать:
-        Проверка адекватности данных
+        To implement:
+        Checking data adequacy 
         */
         *top = current;
         current = NULL;
@@ -324,8 +311,6 @@ int readConfig(Notice **top) {
     cout << "     " << ' ' << "Successfully loaded:" << endl;
     current = *top;
     do {
-        //current->temporalf();
-
         if (current->getWait() == -1)
             cout << "     " << ' ' << "At " << current->getTime() << " \"" << current->getTitle() << "\"" << endl;
         else
@@ -375,29 +360,23 @@ HWND GetConsoleHwnd(void)
     // WindowTitle.
 
     // Fetch current window title.
-
     GetConsoleTitle(pszOldWindowTitle, (DWORD)MY_BUFSIZE);
 
     // Format a "unique" NewWindowTitle.
-
     wsprintf(pszNewWindowTitle,"%d/%d",
              GetTickCount(),
              GetCurrentProcessId());
 
     // Change current window title.
-
     SetConsoleTitle(pszNewWindowTitle);
 
     // Ensure window title has been updated.
-
     Sleep(40);
 
     // Look for NewWindowTitle.
-
     hwndFound = FindWindow(NULL, pszNewWindowTitle);
 
     // Restore original window title.
-
     SetConsoleTitle(pszOldWindowTitle);
 
     return(hwndFound);
